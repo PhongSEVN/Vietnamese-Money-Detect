@@ -1,8 +1,10 @@
 import os
 import cv2
 import yaml
-import shutil
 from tqdm import tqdm
+
+from config.mobile_train_config import BASE_DATA_PATH, OUTPUT_CLS_PATH
+
 
 def load_yaml(path):
     with open(path, 'r') as f:
@@ -104,7 +106,4 @@ def prepare_classification_data(base_path, output_path):
                 cv2.imwrite(os.path.join(class_dir, out_name), roi)
 
 if __name__ == "__main__":
-    BASE_DATA_PATH = r"d:\IT\Projects\nckh\data"
-    OUTPUT_CLS_PATH = r"d:\IT\Projects\nckh\data_cls"
-
     prepare_classification_data(BASE_DATA_PATH, OUTPUT_CLS_PATH)

@@ -1,0 +1,18 @@
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+torch
+torchvision
+torchaudio
+
+ultralytics
+
+opencv-python
+
+numpy
+matplotlib
+scikit-learn
+
+tqdm
+tensorboard
+
+Pillow

@@ -1,9 +1,9 @@
-DATASET_YOLO = "/home/phong/Desktop/Dataset/Money/Money.v1-version-1.yolov8"
+DATASET_YOLO = r"D:\IT\Projects\nckh\data"
 
-DATA_YAML = DATASET_YOLO+"/data.yaml"
+DATA_YAML = DATASET_YOLO + r"\data.yaml"
 
 # Training config
-YOLO_EPOCHS = 100
+YOLO_EPOCHS = 10
 YOLO_IMG_SIZE = 640
 YOLO_BATCH_SIZE = 4
 DEVICE = 0  # GPU
