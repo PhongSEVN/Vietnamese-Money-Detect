@@ -1,25 +1,21 @@
 import torch
 from ultralytics import YOLO
 
-def train_yolo():
-    # Load a model
-    model = YOLO('../yolov8n.pt')  # load a pretrained model (recommended for training)
+from config.yolo_train_config import DATA_YAML, YOLO_EPOCHS, YOLO_IMG_SIZE, YOLO_BATCH_SIZE
 
-    # Train the model
-    # data: đường dẫn đến file yaml dataset
-    # epochs: số vòng lặp (10-20 là đủ demo, 50-100 cho prod)
-    # imgsz: kích thước ảnh input
+
+def train_yolo():
+    model = YOLO('../yolov8n.pt')
+
     # single_cls=True: Coi tất cả các class là 1 class (Banknote)
     model.train(
-        data=r'd:\IT\Projects\nckh\data\data.yaml',
-        epochs=20,
-        imgsz=640,
-        batch=8,
+        data=DATA_YAML,
+        epochs=YOLO_EPOCHS,
+        imgsz=YOLO_IMG_SIZE,
+        batch=YOLO_BATCH_SIZE,
         name='yolo_banknote_det',
-        single_cls=True # 1 class
+        single_cls=True
     )
-
-    # Export model
     model.export(format='onnx')
 
 if __name__ == '__main__':

@@ -5,12 +5,15 @@ from torchvision import datasets, models, transforms
 import os
 import time
 
+from config.mobile_train_config import MOBILE_DATA_DIR, MOBILE_EPOCHS, MOBILE_BATCH_SIZE, MOBILE_IMG_SIZE
+
+
 def train_mobilenet():
     # Cấu hình
-    data_dir = r'd:\IT\Projects\money\data_cls'
-    num_epochs = 10
-    batch_size = 32
-    input_size = 224
+    data_dir = MOBILE_DATA_DIR
+    num_epochs = MOBILE_EPOCHS
+    batch_size = MOBILE_BATCH_SIZE
+    input_size = MOBILE_IMG_SIZE
     
     # Kiểm tra xem dữ liệu đã được chuẩn bị chưa
     if not os.path.exists(data_dir):

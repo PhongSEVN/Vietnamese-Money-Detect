@@ -1,11 +1,11 @@
-DATASET_PATH = "/home/phong/Desktop/Dataset/Money/Money.v1-version-1.yolov8"
+DATASET_YOLO = "/home/phong/Desktop/Dataset/Money/Money.v1-version-1.yolov8"
 
-DATA_YAML = DATASET_PATH+"/data.yaml"
+DATA_YAML = DATASET_YOLO+"/data.yaml"
 
 # Training config
-EPOCHS = 100
-IMGSZ = 640
-BATCH = 4
+YOLO_EPOCHS = 100
+YOLO_IMG_SIZE = 640
+YOLO_BATCH_SIZE = 4
 DEVICE = 0  # GPU
 
 AUGMENTATION = {
