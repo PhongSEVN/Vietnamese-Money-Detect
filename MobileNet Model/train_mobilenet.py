@@ -16,6 +16,7 @@ import os
 import shutil
 
 from dataset.dataset import Money
+from mobilenet_model import MobileNet
 
 
 def get_args():
@@ -51,9 +52,9 @@ def plot_confusion_matrix(writer, cm, class_names, epoch):
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
             color = "white" if cm[i, j] > threshold else "black"
-            plt.text(j, i, f"{cm[i, j]}\n({cm_normalized[i, j]:.2f})", 
-                    horizontalalignment="center", color=color, fontsize=8)
-    
+            plt.text(j, i, f"{cm[i, j]}\n({cm_normalized[i, j]:.2f})",
+                     horizontalalignment="center", color=color, fontsize=8)
+
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
@@ -75,12 +76,8 @@ def calculate_class_weights(dataset):
     return torch.FloatTensor(class_weights)
 
 
-def create_model(num_classes, device):
-    model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.IMAGENET1K_V1)
-    
-    num_ftrs = model.classifier[1].in_features
-    model.classifier[1] = nn.Linear(num_ftrs, num_classes)
-    
+def create_model(num_classes, device, freeze_backbone=True):
+    model = MobileNet(num_classes=num_classes, freeze_backbone=freeze_backbone)
     return model.to(device)
 
 
@@ -104,9 +101,9 @@ if __name__ == '__main__':
         RandomRotation(degrees=15),
         ColorJitter(
             brightness=0.3,  # Thay đổi độ sáng
-            contrast=0.3,    # Thay đổi độ tương phản
+            contrast=0.3,  # Thay đổi độ tương phản
             saturation=0.3,  # Thay đổi độ bão hòa
-            hue=0.1          # Thay đổi màu sắc nhẹ
+            hue=0.1  # Thay đổi màu sắc nhẹ
         ),
         ToTensor(),
         Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -119,8 +116,8 @@ if __name__ == '__main__':
         Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
-    train_dataset = Money(MOBILE_DATA_DIR,train=True , transform=train_transform)
-    test_dataset = Money(MOBILE_DATA_DIR,train=False, transform=test_transform)
+    train_dataset = Money(MOBILE_DATA_DIR, train=True, transform=train_transform)
+    test_dataset = Money(MOBILE_DATA_DIR, train=False, transform=test_transform)
 
     train_loader = DataLoader(
         dataset=train_dataset,
@@ -139,21 +136,21 @@ if __name__ == '__main__':
     class_names = train_dataset.categories
     print(f"\nClasses: {class_names}")
     print(f"Number of classes: {len(class_names)}")
-    
+
     class_weights = calculate_class_weights(train_dataset).to(device)
 
     if os.path.isdir(args.logging):
         shutil.rmtree(args.logging)
-    
+
     os.makedirs(args.model, exist_ok=True)
 
     writer = SummaryWriter(args.logging)
 
     model = create_model(len(class_names), device)
-    
+
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    
+
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='max', factor=0.5, patience=5, verbose=True
     )
@@ -177,7 +174,7 @@ if __name__ == '__main__':
         model.train()
         running_loss = 0.0
         progress_bar = tqdm.tqdm(train_loader, colour='green')
-        
+
         for iter, (images, labels) in enumerate(progress_bar):
             images = images.to(device)
             labels = labels.to(device)
@@ -229,8 +226,9 @@ if __name__ == '__main__':
         writer.add_scalar("Validation/loss", avg_val_loss, epoch)
         writer.add_scalar("Train/learning_rate", current_lr, epoch)
 
-        print(f"\nEpoch {epoch + 1}: Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Accuracy: {accuracy:.4f}")
-        
+        print(
+            f"\nEpoch {epoch + 1}: Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Accuracy: {accuracy:.4f}")
+
         # print("\nClassification Report:")
         # print(classification_report(all_labels, all_preds, target_names=class_names, zero_division=0))
 
@@ -250,10 +248,9 @@ if __name__ == '__main__':
             torch.save(checkpoint, f"{args.model}/best_mobilenet.pt")
             print(f"Best model saved with accuracy: {best_accuracy:.4f}")
 
-
     print(f"\nTraining complete!")
     print(f"Best validation accuracy: {best_accuracy:.4f}")
     print(f"Model saved to: {args.model}/")
     print(f"Tensorboard logs: {args.logging}/")
-    
+
     writer.close()
