@@ -42,7 +42,7 @@ Hướng dẫn.m4a
 
 data/*
 
-/Yolo Model/runs
+#/Yolo Model/runs
 Plan.docx
 Đề xuất mô hình cho nhận diện tiền Việt và OCR trên di động.docx
 đọc văn bản.docx

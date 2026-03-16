@@ -1,5 +1,9 @@
 import torch
 from ultralytics import YOLO
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.yolo_train_config import DATA_YAML, YOLO_EPOCHS, YOLO_IMG_SIZE, YOLO_BATCH_SIZE
 

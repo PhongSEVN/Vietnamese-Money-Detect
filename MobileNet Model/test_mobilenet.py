@@ -5,6 +5,10 @@ from PIL import Image
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from torch.utils.data import DataLoader
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mobilenet_model import MobileNet
 from dataset.dataset import Money

@@ -9,6 +9,11 @@ from torchvision.transforms import Compose, Resize, ToTensor, RandomResizedCrop,
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import tqdm
 from argparse import ArgumentParser
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config.mobile_train_config import MOBILE_DATA_DIR, MOBILE_EPOCHS, MOBILE_BATCH_SIZE, MOBILE_IMG_SIZE, NUM_WORKERS
 import matplotlib.pyplot as plt
 import numpy as np
