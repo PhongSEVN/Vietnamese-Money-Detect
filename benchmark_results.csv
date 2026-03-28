@@ -1,0 +1,37 @@
+BENCHMARK RESULTS — Vietnamese Banknote Recognition
+
+=== OVERALL METRICS ===
+Metric,Model A (2-stage),Model B (1-stage),Notes
+mAP@50,0.9726,0.9946,cls-AP for A (sklearn); detection mAP for B (ultralytics)
+mAP@50-95,N/A,0.9831,detection metric; not applicable to 2-stage pipeline
+Precision,0.9116,0.9904,end-to-end classification
+Recall,0.9106,0.9906,end-to-end classification
+F1,0.9108,0.9905,end-to-end classification
+Detection rate,0.9992,0.9975,fraction of images with a detection
+
+"=== SPEED (CPU, 100 images) ==="
+Metric,Model A (2-stage),Model B (1-stage),Unit
+Latency mean,456.48,156.20,ms/image
+Latency std,498.66,10.39,ms/image
+FPS,2.2,6.4,frames/sec
+
+=== MODEL SIZE ===
+Component,Model A,Model B,
+YOLO file (MB),6.26,6.26,
+MobileNet (MB),50.92,—,Model A only
+Total (MB),57.18,6.26,
+YOLO params,"3,011,043","3,012,603",
+MobileNet params,"4,213,561",—,
+Total params,"7,224,604","3,012,603",
+
+=== PER-CLASS METRICS ===
+Class,A Prec,A Recall,A F1,A AP_cls,B Prec,B Recall,B F1,B AP@50 (det)
+100k,0.9412,0.9412,0.9412,0.9779,0.9917,1.0000,0.9958,0.9935
+10k,0.8321,0.8906,0.8604,0.9580,1.0000,0.9922,0.9961,0.9950
+1k,0.9522,0.9755,0.9637,0.9866,0.9951,0.9902,0.9926,0.9950
+200k,0.9250,0.8862,0.9052,0.9637,0.9822,1.0000,0.9910,0.9949
+20k,0.9057,0.9143,0.9100,0.9829,0.9810,0.9904,0.9856,0.9945
+2k,0.9524,0.9333,0.9428,0.9838,1.0000,0.9800,0.9899,0.9949
+500k,0.8942,0.8532,0.8732,0.9613,0.9818,0.9908,0.9863,0.9947
+50k,0.8911,0.8654,0.8780,0.9548,1.0000,0.9904,0.9952,0.9937
+5k,0.9107,0.9358,0.9231,0.9847,0.9817,0.9817,0.9817,0.9950
