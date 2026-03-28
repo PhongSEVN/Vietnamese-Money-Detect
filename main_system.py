@@ -58,8 +58,10 @@ class RealMobileNet:
         # Load weights
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Chưa có model MobileNet tại {model_path}. Hãy chạy train_mobilenet.py trước!")
-            
-        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+
+        checkpoint = torch.load(model_path, map_location=self.device)
+        state = checkpoint['model'] if isinstance(checkpoint, dict) and 'model' in checkpoint else checkpoint
+        self.model.load_state_dict(state)
         self.model.to(self.device)
         self.model.eval()
         
@@ -196,7 +198,7 @@ class MockMobileNet:
 
 if __name__ == "__main__":
     # Test với ảnh tĩnh hoặc video
-    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
     
     dummy_frame = cv2.imread(r"C:\Users\as\Desktop\2.jpg")
     if dummy_frame is None:

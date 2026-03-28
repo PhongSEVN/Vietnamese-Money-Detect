@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 from torch import optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets, models
 from torchvision.transforms import Compose, Resize, ToTensor, RandomResizedCrop, RandomHorizontalFlip, Normalize, \
-    CenterCrop, RandomRotation, ColorJitter
+    CenterCrop, RandomRotation, ColorJitter, RandomVerticalFlip
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import tqdm
 from argparse import ArgumentParser
@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument("--logging", "-l", type=str, default="tensorboard_mobilenet", help="Log training directory")
     parser.add_argument("--model", "-m", type=str, default="trained_mobilenet", help="Model save directory")
     parser.add_argument("--checkpoint", "-c", type=str, default=None, help="Checkpoint to resume training")
-    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+    parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate")
 
     args = parser.parse_args()
     return args
@@ -101,17 +101,18 @@ if __name__ == '__main__':
         exit(1)
 
     train_transform = Compose([
-        RandomResizedCrop(args.image_size, scale=(0.7, 1.0)),
+        RandomResizedCrop(args.image_size, scale=(0.8, 1.0)),
         RandomHorizontalFlip(p=0.5),
+        RandomVerticalFlip(p=0.1),
         RandomRotation(degrees=15),
         ColorJitter(
-            brightness=0.3,  # Thay đổi độ sáng
-            contrast=0.3,  # Thay đổi độ tương phản
-            saturation=0.3,  # Thay đổi độ bão hòa
-            hue=0.1  # Thay đổi màu sắc nhẹ
+            brightness=0.2,
+            contrast=0.2,
+            saturation=0.1,
+            hue=0.05
         ),
         ToTensor(),
-        Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ])
 
     test_transform = Compose([
@@ -124,10 +125,20 @@ if __name__ == '__main__':
     train_dataset = Money(MOBILE_DATA_DIR, train=True, transform=train_transform)
     test_dataset = Money(MOBILE_DATA_DIR, train=False, transform=test_transform)
 
+    class_names = train_dataset.categories
+    print(f"\nClasses: {class_names}")
+    print(f"Number of classes: {len(class_names)}")
+
+    class_weights = calculate_class_weights(train_dataset).to(device)
+
+    # WeightedRandomSampler: oversample minority classes thay vì chỉ dùng class weights trong loss
+    sample_weights = [1.0 / class_weights[label].item() for label in train_dataset.label_path]
+    sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)
+
     train_loader = DataLoader(
         dataset=train_dataset,
         batch_size=args.batch_size,
-        shuffle=True,
+        sampler=sampler,
         num_workers=NUM_WORKERS,
         drop_last=True
     )
@@ -137,12 +148,6 @@ if __name__ == '__main__':
         shuffle=False,
         num_workers=NUM_WORKERS
     )
-
-    class_names = train_dataset.categories
-    print(f"\nClasses: {class_names}")
-    print(f"Number of classes: {len(class_names)}")
-
-    class_weights = calculate_class_weights(train_dataset).to(device)
 
     if os.path.isdir(args.logging):
         shutil.rmtree(args.logging)
@@ -157,7 +162,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='max', factor=0.5, patience=5, verbose=True
+        optimizer, mode='max', factor=0.5, patience=7, min_lr=1e-6
     )
 
     if args.checkpoint:
@@ -176,6 +181,20 @@ if __name__ == '__main__':
     print(f"Train batches: {num_iters}, Test batches: {len(test_loader)}")
 
     for epoch in range(start_epoch, args.epochs):
+        # Phase 2: Unfreeze 3 layers cuối ở epoch 10
+        if epoch == 10:
+            print("\n[Phase 2] Unfreezing last 3 backbone layers...")
+            model.unfreeze_backbone(num_layers=3)
+            for pg in optimizer.param_groups:
+                pg['lr'] = args.lr * 0.1
+
+        # Phase 3: Unfreeze toàn bộ backbone ở epoch 20
+        if epoch == 20:
+            print("\n[Phase 3] Unfreezing full backbone...")
+            model.unfreeze_backbone()
+            for pg in optimizer.param_groups:
+                pg['lr'] = args.lr * 0.01
+
         model.train()
         running_loss = 0.0
         progress_bar = tqdm.tqdm(train_loader, colour='green')
@@ -243,6 +262,7 @@ if __name__ == '__main__':
             "optimizer": optimizer.state_dict(),
             "loss": avg_val_loss,
             "accuracy": accuracy,
+            "best_accuracy": best_accuracy,
             "class_names": class_names
         }
         torch.save(checkpoint, f"{args.model}/last_mobilenet.pt")

@@ -10,7 +10,7 @@ import sys
 sys.path.append(r"D:\IT\Projects\nckh\MobileNet Model")
 from mobilenet_model import MobileNet
 
-YOLO_MODEL_PATH = r"D:\IT\Projects\nckh\Yolo Model\runs\detect\yolo_banknote_det3\weights\best.pt"
+YOLO_MODEL_PATH = r"D:\IT\Projects\nckh\Yolo Model\runs\detect\yolo_banknote_det\weights\best.pt"
 MOBILENET_MODEL_PATH = r"D:\IT\Projects\nckh\MobileNet Model\trained_mobilenet\best_mobilenet.pt"
 CLASS_NAMES = ['100k', '10k', '1k', '200k', '20k', '2k', '500k', '50k', '5k']
 CONFIDENCE_THRESHOLD = 0.5

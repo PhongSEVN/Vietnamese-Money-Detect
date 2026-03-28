@@ -117,7 +117,7 @@ class SafetyVerifier:
             return VerificationStatus.UNCERTAIN, None, "History noisy"
 
         most_common_label, count = Counter(valid_labels).most_common(1)[0]
-        consistency_ratio = count / self.history_size
+        consistency_ratio = count / len(valid_labels)
 
         # 5. Final Decision
         if consistency_ratio >= self.stability_threshold:

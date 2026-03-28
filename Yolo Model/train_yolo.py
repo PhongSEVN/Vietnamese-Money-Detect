@@ -18,7 +18,8 @@ def train_yolo():
         imgsz=YOLO_IMG_SIZE,
         batch=YOLO_BATCH_SIZE,
         name='yolo_banknote_det',
-        single_cls=True
+        workers=2,
+        # single_cls=True
     )
     model.export(format='onnx')
 

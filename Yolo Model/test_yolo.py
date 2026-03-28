@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 # Đường dẫn
-MODEL_PATH = r"D:\IT\Projects\nckh\Yolo Model\runs\detect\yolo_banknote_det3\weights\best.pt"
+MODEL_PATH = r"D:\IT\Projects\nckh\Yolo Model\runs\detect\yolo_banknote_det\weights\best.pt"
 DATA_YAML = r"D:\IT\Projects\nckh\data\data.yaml"
 
 # Config

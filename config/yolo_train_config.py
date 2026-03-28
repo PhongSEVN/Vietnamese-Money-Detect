@@ -1,6 +1,9 @@
-DATASET_YOLO = r"D:\IT\Projects\nckh\data"
+import os
 
-DATA_YAML = DATASET_YOLO + r"\data.yaml"
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+DATASET_YOLO = os.path.join(_PROJECT_ROOT, 'data')
+DATA_YAML = os.path.join(DATASET_YOLO, 'data.yaml')
 
 # Training config
 YOLO_EPOCHS = 10

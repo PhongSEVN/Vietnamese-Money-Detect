@@ -19,7 +19,7 @@ class Money(Dataset):
             mode = 'test'
         self.root = os.path.join(root, mode)
         self.transform = transform
-        self.categories = os.listdir(self.root)
+        self.categories = sorted(os.listdir(self.root))
         self.image_path = []
         self.label_path = []
 
